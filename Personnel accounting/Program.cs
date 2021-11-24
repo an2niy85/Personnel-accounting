@@ -12,13 +12,10 @@ namespace Personnel_accounting
         {
             bool isOpen = true;
             int inputUser;
-            string fullName;
-            string position;
-            string lastName;
-            int deleteNumber;
-            string[] fullNameArray = new string[0];
-            string[] positionArray = new string[0];
-
+            string[] fullNames = { "Иванов Иван Иванович", "Петров Петр Петрович", "Сидоров Сидр Сидорович" };
+            //string[] fullNames = new string[0];
+            string[] positions = { "Шеф", "Администратор", "Программист" };
+            //string[] positions = new string[0];
             while (isOpen)
             {
                 Console.WriteLine("Отдел кадров.");
@@ -29,27 +26,31 @@ namespace Personnel_accounting
                 {
                     case 1:
                         Console.WriteLine("Введите ФИО:");
-                        fullName = Console.ReadLine();
-                        fullNameArray = AddArray(fullName, fullNameArray);
+                        string fullName = Console.ReadLine();
                         Console.WriteLine("Введите должность:");
-                        position= Console.ReadLine();
-                        positionArray = AddArray(position, positionArray);
+                        string position= Console.ReadLine();
+                        AddDossier(fullName, ref fullNames, position, ref positions);
                         break;
                     case 2:
                         Console.WriteLine("Список досье:");
-                        OutputArrays(fullNameArray, positionArray);
+                        OutputDossier(fullNames, positions);
                         break;
                     case 3:
-                        Console.WriteLine("Введите номер удаляемого досье:");
-                        deleteNumber = Convert.ToInt32(Console.ReadLine());
-                        fullNameArray = DeleteArray(deleteNumber, fullNameArray);
-                        positionArray = DeleteArray(deleteNumber, positionArray);
+                        if (NotEmptyDossier(fullNames))
+                        {
+                            Console.WriteLine("Введите номер удаляемого досье:");
+                            int deleteNumber = Convert.ToInt32(Console.ReadLine());
+                            DeleteDossier(deleteNumber, ref fullNames, ref positions);
+                        }                        
                         break;
                     case 4:
-                        Console.WriteLine("Введите фамилию для поиска:");
-                        lastName = Console.ReadLine();
-                        FindArray(lastName, fullNameArray, positionArray);
-                        break;
+                        if (NotEmptyDossier(fullNames))
+                        {
+                            Console.WriteLine("Введите фамилию для поиска:");
+                            string lastName = Console.ReadLine();
+                            FindDossier(lastName, fullNames, positions);
+                        }
+                            break;
                     case 5:
                         isOpen = false;
                         break;
@@ -61,53 +62,84 @@ namespace Personnel_accounting
             }
         }
 
-        static string[] AddArray(string thing, string[] bag)
+        static void AddDossier(string fullName, ref string[] fullNames, string position, ref string[]positions)
         {
-            string[] tempBag = new string[bag.Length + 1];
-            for (int i = 0; i < bag.Length; i++)
+            string[] tempFullNames = new string[fullNames.Length + 1];
+            string[] tempPositions = new string[positions.Length + 1];
+
+            for (int i = 0; i < fullNames.Length; i++)
             {
-                tempBag[i] = bag[i];
+                tempFullNames[i] = fullNames[i];
+                tempPositions[i] = positions[i];
             }
-            tempBag[tempBag.Length - 1] = thing;
-            bag = tempBag;
-            return bag;
+            tempFullNames[tempFullNames.Length - 1] = fullName;
+            fullNames = tempFullNames;
+
+            tempPositions[tempPositions.Length - 1] = position;
+            positions = tempPositions;
         }
 
-        static void OutputArrays(string [] arrays, string [] arrays2)
+        static void OutputDossier(string [] fullNames, string [] positions)
         {
-            for (int i = 0; i < arrays.Length; i++)
+            if (NotEmptyDossier(fullNames))
             {
-                Console.WriteLine((i+1) + " "+ arrays[i] + " - " + arrays2[i] + " ");
-            }
-        }
-
-        static void FindArray(string lastName, string[] fullName, string [] position)
-        {
-            for (int i = 0; i < fullName.Length; i++)
-            {
-                string[] names = fullName[i].Split(' ');
-                string ln = names[names.Length - 1];
-                if (ln == lastName)
+                for (int i = 0; i < fullNames.Length; i++)
                 {
-                    Console.WriteLine("Искомый сотрудник найден");
-                    Console.WriteLine((i + 1) + " " + fullName[i] + " - " + position[i]);
+                    Console.WriteLine((i + 1) + " " + fullNames[i] + " - " + positions[i] + " ");
                 }
             }
         }
 
-        static string[] DeleteArray(int deleteNumber, string[]bag)
+        static void FindDossier(string lastName, string[] fullNames, string [] positions)
         {
-            int j = 0;
-            string[] tempBag = new string[bag.Length - 1];
-            for (int i = 0; i < bag.Length; i++)
+            if (NotEmptyDossier(fullNames))
             {
-                if (i != deleteNumber)
+                string[] partNames;
+                for (int i = 0; i < fullNames.Length; i++)
                 {
-                    tempBag[j++] = bag[i];
+                    partNames = fullNames[i].Split(' ');
+                    for (int j = 0; j < partNames.Length; j++)
+                    {
+                        if (partNames[j] == lastName)
+                        {
+                            Console.WriteLine("Искомый сотрудник найден");
+                            Console.WriteLine((i + 1) + " " + fullNames[i] + " - " + positions[i]);
+                        }
+                    }                   
                 }
             }
-            bag = tempBag;
-            return bag;
+        }
+
+        static void DeleteDossier(int deleteNumber, ref string[]fullNames, ref string[]positions)
+        {
+            if (NotEmptyDossier(fullNames))
+            {
+                int j = 0;
+                string[] tempFullNames = new string[fullNames.Length - 1];
+                string[] tempPositions = new string[positions.Length - 1];
+
+                for (int i = 0; i < fullNames.Length; i++)
+                {
+                    if (i != (deleteNumber - 1))
+                    {
+                        tempFullNames[j] = fullNames[i];
+                        tempPositions[j] = positions[i];
+                        j++;
+                    }
+                }
+                fullNames = tempFullNames;
+                positions = tempPositions;
+            }
+        }
+
+        static bool NotEmptyDossier(string[]fullNames)
+        {
+            if (fullNames.Length == 0)
+            {
+                Console.WriteLine("Список досье пуст");
+                return false;
+            }
+            else return true;
         }
     }
 }
